@@ -1,26 +1,55 @@
+
+import TodoList from './components/TodoList.vue';
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <TodoHeader />
+  <TodoInput @add="addTodoItem"/>
+  <TodoList :todoItems="todoItems" @remove="removeTodoItem"/>  
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { ref } from 'vue';
+  import TodoHeader from './components/TodoHeader.vue';
+  import TodoInput from './components/TodoInput.vue';
+  import TodoList from './components/TodoList.vue';
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  export default {
+    components :{
+      TodoInput,
+      TodoHeader,
+      TodoList
+    },
+    setup(){
+      const todoItems = ref([]);
+
+      //methods
+      //외부에 영향을 주지 않고 독립적인 일을 해야한다. 
+      //그러므로 바로 todoItems에 넣지않고 독립적인 array를 반환한다.
+      function fetchTodos(){ 
+        const result = [];
+        for(let i = 0; i < localStorage.length; i++){
+           const todoItem = localStorage.key(i);
+           result.push(todoItem);
+        }
+        return result;
+      }
+      todoItems.value = fetchTodos();
+
+      function addTodoItem(todo){
+        todoItems.value.push(todo);
+        localStorage.setItem(todo,todo);
+      }
+
+      return {todoItems,addTodoItem};
+    },
+    methods :{
+      removeTodoItem(item,index){
+        this.todoItems.splice(index,1);
+        localStorage.removeItem(item);
+      }
+    },
   }
-}
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="scss" scoped>
+
 </style>
